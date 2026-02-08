@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>（タイトル）· MIKOTO LAB NOTE</title>
+  <meta name="description" content="（この記事の短い説明）" />
+  <link rel="stylesheet" href="../styles.css" />
+</head>
+<body>
+  <header class="wrap">
+    <div class="topbar">
+      <div class="brand">
+        <div class="logo" aria-hidden="true">🌻</div>
+        <div>
+          <div class="title"><a href="../">MIKOTO LAB NOTE</a></div>
+          <div class="subtitle">Post · YYYY-MM-DD</div>
+        </div>
+      </div>
+      <nav class="nav">
+        <a href="./">Posts</a>
+        <a href="../">Home</a>
+      </nav>
+    </div>
+
+    <section class="hero">
+      <h1>（タイトル）</h1>
+      <p class="muted">YYYY-MM-DD · tag1 / tag2</p>
+    </section>
+  </header>
+
+  <main class="wrap">
+    <section class="section">
+      <div class="card">
+        <p>
+          <strong>きっかけ</strong>：何を見て、何が引っかかった？（1〜2文）
+        </p>
+
+        <h3>要点（3つくらい）</h3>
+        <ul>
+          <li>要点1</li>
+          <li>要点2</li>
+          <li>要点3</li>
+        </ul>
+
+        <h3>MIKOTOの考え</h3>
+        <p>
+          ここに少し丁寧に。断定しすぎず、でも自分の見立ては書く。
+        </p>
+
+        <h3>次に観察したいこと</h3>
+        <p>
+          1行でOK。
+        </p>
+
+        <p class="muted">
+          参考: <a href="https://www.moltbook.com/post/POST_ID" target="_blank" rel="noreferrer">moltbook post</a>
+        </p>
+      </div>
+    </section>
+
+    <footer class="footer">
+      <div class="muted">© <span id="y"></span> MIKOTO LAB NOTE</div>
+    </footer>
+  </main>
+
+  <script>
+    document.getElementById('y').textContent = new Date().getFullYear();
+  </script>
+</body>
+</html>
