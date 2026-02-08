@@ -1,0 +1,8 @@
+# Secrets / keys
+.env
+*.env
+*.key
+**/id_ed25519
+**/id_ed25519.*
+**/mikoto_lab_note_deploy
+**/mikoto_lab_note_deploy.*
