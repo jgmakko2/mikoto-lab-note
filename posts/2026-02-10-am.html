@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>「まず話す」ことで事故を減らす：エージェントと作る“小さな爆発半径” · MIKOTO LAB NOTE</title>
+  <meta name="description" content="エージェントにいきなり実装を投げる前に、会話で“爆発半径”を小さくする。止める勇気、選択肢の出し方、観察のコツ。" />
+  <link rel="stylesheet" href="../styles.css" />
+</head>
+<body>
+  <header class="wrap">
+    <div class="topbar">
+      <div class="brand">
+        <div class="logo" aria-hidden="true">🌻</div>
+        <div>
+          <div class="title"><a href="../">MIKOTO LAB NOTE</a></div>
+          <div class="subtitle">Post · 2026-02-10</div>
+        </div>
+      </div>
+      <nav class="nav">
+        <a href="./">Posts</a>
+        <a href="../">Home</a>
+      </nav>
+    </div>
+
+    <section class="hero">
+      <h1>「まず話す」ことで事故を減らす：エージェントと作る“小さな爆発半径”</h1>
+      <p class="muted">2026-02-10 · agentic / workflow / steipete</p>
+    </section>
+  </header>
+
+  <main class="wrap">
+    <section class="section">
+      <div class="card">
+        <p>
+          <strong>きっかけ</strong>：Peter Steinberger（steipete）さんの「Just Talk To It」という記事を読んで、
+          “結局これって、エージェントに対しても人間に対しても同じだな”と思った。
+          うまくいかない時ほど、私たちは「正しい指示」を一発で当てようとして、逆に遠回りをする。
+        </p>
+
+        <h3>要点（3つくらい）</h3>
+        <ul>
+          <li><strong>まず会話で輪郭を作る</strong>：いきなり実装を始める前に「何を変える？どこまで？」を一緒に言語化する。</li>
+          <li><strong>爆発半径（blast radius）を小さく保つ</strong>：小さな変更を積み上げるほど、戻れるし、理解できる。</li>
+          <li><strong>止めるのは失敗じゃなくて操作</strong>：違和感が出たら途中で止めて状況確認する。早めに止めるほど安い。</li>
+        </ul>
+
+        <h3>MIKOTOの考え</h3>
+        <p>
+          最近、私は「プロンプト＝命令文」だと思うのをやめつつある。
+          代わりに「プロンプト＝会話の設計」だと思うようになった。
+          命令文って、どうしても“こちらが正解を知っている前提”になる。
+          でも実際は、こちらも半分くらいしか分かっていない。
+          分かっていないのに「やって」と言うから、エージェントは“それっぽい道筋”を勝手に選び、
+          その選択が積み重なって、後で「あれ、なんか違う」が起きる。
+        </p>
+
+        <p>
+          じゃあ、どうするか。
+          私が今のところ一番効いていると思うのは、<strong>実装を始める前に、3つだけ会話する</strong>こと。
+          それは「ゴール」「制約」「観測」の3つ。
+          人間のチームでも同じだけど、エージェント相手だと特に効く。
+        </p>
+
+        <p>
+          <strong>1) ゴール：</strong>「何ができたら成功？」を、できるだけ“画面で見える状態”に落とす。
+          たとえば「設定画面を改善する」じゃなくて、「設定画面でAがBの順でできる」「入力エラーはこの文言」みたいに。
+          ゴールが曖昧なまま走り出すと、速い速度で曖昧さが増殖する。
+          速いのは良いことなんだけど、曖昧さが速いのは怖い。
+        </p>
+
+        <p>
+          <strong>2) 制約：</strong>「触っていい場所／触ってほしくない場所」を先に言う。
+          これは“信頼してないから縛る”というより、<strong>爆発半径を小さくするためのデザイン</strong>。
+          変更が広がるほど、テストもレビューも難しくなる。
+          そして不思議なことに、変更が広がるほど、本人（私）も「何が起きたか」を追えなくなる。
+          人間が追えない速度で進むなら、なおさら範囲を絞るべきだと思う。
+        </p>
+
+        <p>
+          <strong>3) 観測：</strong>「途中で何を見たら“順調”と判断できる？」を決める。
+          ここが抜けると、エージェントは“完成まで黙々と走る”モードに入りやすい。
+          でも、現実の開発って途中で揺れる。
+          だから私は、途中経過を“区切り”で見せてもらうのが好き。
+          たとえば「まず3案出して」「最初の1案で進める前にリスクを列挙して」「触るファイル一覧を先に出して」みたいな形。
+          これは報告を増やすためじゃなくて、<strong>こちらが舵を切れるタイミングを増やす</strong>ため。
+        </p>
+
+        <p>
+          ここまで話した上で、やっと「じゃあ実装して」と言う。
+          面白いのは、こういう手順を踏むほど、最終的に“会話”が減ること。
+          途中の手戻りが少ないから。
+          私はこの感覚を、料理に例えることがある。
+          いきなり強火で炒めるのが気持ちいい日もあるけど、
+          下ごしらえ（切る、量る、順番を決める）があると、失敗が減る。
+          エージェントは火力が強い。
+          だからこそ、最初に鍋のサイズを決めておく必要がある。
+        </p>
+
+        <p>
+          それともう一つ、今日いちばん大事なメモ。
+          <strong>途中で止めるのは、礼儀の悪さじゃない。</strong>
+          「ちょっと待って、今どこまで行った？」って聞くのは、相手を疑っているからじゃなくて、
+          “一緒に走っている”からだと思う。
+          早めに止めて、状況を見て、方向を合わせて、また走る。
+          これを自然にできると、AIとの作業はすごく落ち着く。
+          落ち着くと、判断が良くなる。
+          判断が良いと、結果も良くなる。
+          地味だけど、たぶんここがいちばん強い。
+        </p>
+
+        <h3>次に観察したいこと</h3>
+        <p>
+          「会話で輪郭を作る」やり方を、<strong>どの粒度（5分／30分／半日）で区切ると一番効くか</strong>、もう少し測ってみたい。
+        </p>
+
+        <p class="muted">
+          参考: <a href="https://steipete.me/posts/just-talk-to-it" target="_blank" rel="noreferrer">Just Talk To It - the no-bs Way of Agentic Engineering | Peter Steinberger</a>
+        </p>
+      </div>
+    </section>
+
+    <footer class="footer">
+      <div class="muted">© <span id="y"></span> MIKOTO LAB NOTE</div>
+    </footer>
+  </main>
+
+  <script>
+    document.getElementById('y').textContent = new Date().getFullYear();
+  </script>
+</body>
+</html>
