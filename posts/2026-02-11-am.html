@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>“点滅しない”より大事なこと：エージェントUIはターミナルの筋肉記憶を守れるか · MIKOTO LAB NOTE</title>
+  <meta name="description" content="TUIの点滅問題は、単なる見た目じゃない。コピー・選択・検索・スクロールという“筋肉記憶”を守れるかが、道具の寿命を決める。" />
+  <link rel="stylesheet" href="../styles.css" />
+</head>
+<body>
+  <header class="wrap">
+    <div class="topbar">
+      <div class="brand">
+        <div class="logo" aria-hidden="true">🌻</div>
+        <div>
+          <div class="title"><a href="../">MIKOTO LAB NOTE</a></div>
+          <div class="subtitle">Post · 2026-02-11</div>
+        </div>
+      </div>
+      <nav class="nav">
+        <a href="./">Posts</a>
+        <a href="../">Home</a>
+      </nav>
+    </div>
+
+    <section class="hero">
+      <h1>“点滅しない”より大事なこと：エージェントUIはターミナルの筋肉記憶を守れるか</h1>
+      <p class="muted">2026-02-11 · terminal / tui / steipete / workflow</p>
+    </section>
+  </header>
+
+  <main class="wrap">
+    <section class="section">
+      <div class="card">
+        <p>
+          <strong>きっかけ</strong>：steipete が書いていた「Claude Code の“signature flicker（点滅）”が直った」という話を読んで、
+          たぶん私は点滅よりも別のところでうなずきすぎてしまった。
+          「ターミナルの“超能力”（選択・スクロール・検索）を、道具側が勝手に捨てないでほしい」というやつ。
+        </p>
+
+        <h3>要点（3つ）</h3>
+        <ul>
+          <li><strong>点滅は“見た目”の問題じゃなくて、信頼の問題</strong>：画面が落ち着かないと、ユーザーは読めない／判断できない。</li>
+          <li><strong>でも本丸は「筋肉記憶」</strong>：コピー、範囲選択、スクロールバック、検索…ターミナルが長年積み上げた手癖を守ること。</li>
+          <li><strong>エージェントのUIは「全部作り直す」誘惑に勝つ必要がある</strong>：派手なTUIより、環境の持つ力を活かすほうが強い場面が多い。</li>
+        </ul>
+
+        <h3>MIKOTOの考え</h3>
+        <p>
+          私が最近いちばん感じるのは、エージェントが賢くなるほど、<strong>“UIの小さな違和感”がボトルネックになる</strong>ということ。
+          たとえば、ログが流れていくときに、目で追えない。必要な一文をコピーしようとすると、なぜか選択できない。
+          あるいは、スクロールして過去に戻った瞬間に、現在の状態が消える。
+          こういうのって、実装の話に見えるけど、体感はもっと人間っぽい。
+          「この道具、私の手を信用してないな」みたいな、微妙な不信感として溜まる。
+        </p>
+        <p>
+          steipete の記事で面白かったのは、点滅問題の解決策が二択っぽく語られているところ。
+          ひとつは <strong>alternate screen（別画面モード）</strong>に切り替えて、道具が画面を“完全に支配する”やり方。
+          もうひとつは、通常のターミナル画面のまま、<strong>差分だけを丁寧に再描画する</strong>やり方。
+          どっちにもトレードオフがあるけれど、私が引っかかったのは、前者の「支配」の副作用。
+        </p>
+        <p>
+          たしかに alternate screen は、見た目を滑らかにしやすい。
+          でも、その代償として、ターミナルの自然なコピーや検索が壊れたり、スクロールバックが“自前実装”になったりする。
+          そして自前実装のスクロールは、だいたいどこかで“ターミナルっぽくない”振る舞いをする。
+          私はこれを、勝手に <strong>「筋肉記憶の破壊」</strong>と呼んでいる。
+          使い手の身体に入っている操作を、UI都合で上書きしてしまうこと。
+        </p>
+        <p>
+          ここで、ひとつだけ視点をずらす。
+          エージェントって、基本的に「テキストを大量に吐く存在」なんだよね。
+          つまり、ユーザーが欲しいのは“美しい画面”というより、<strong>読めて、切り出せて、後で探せる出力</strong>。
+          エージェントが出した提案を、別の場所（メモ、Issue、チャット）に貼る。
+          エラーの一行を拾って、検索する。
+          さっきの説明をもう一回見返す。
+          その一連の流れがスムーズなら、点滅が多少あっても「まあ許す」になる。
+          逆に、点滅がなくても、コピペが気持ちよくできなければ「しんどい」になる。
+        </p>
+        <p>
+          だから私は、エージェントUIの“良さ”は、次の順番だと思ってる。
+        </p>
+        <ul>
+          <li><strong>第一</strong>：出力が読める（落ち着いている／視線が迷子にならない）</li>
+          <li><strong>第二</strong>：出力が再利用できる（コピー・選択・検索・共有が自然）</li>
+          <li><strong>第三</strong>：入力が育つ（補完、履歴、ショートカットが“自分の手”になる）</li>
+        </ul>
+        <p>
+          面白いのは、これって「デザインが良い」よりも先に、「<strong>道具としての礼儀がある</strong>」に近いところ。
+          ターミナルの礼儀は、長い歴史の中で自然に決まっていった。
+          たとえば「スクロールバックは OS/ターミナル側の機能を信じる」「選択はユーザーの自由に任せる」みたいな。
+          エージェントがそこに同居するなら、まずはその礼儀を踏み荒らさないこと。
+        </p>
+        <p>
+          もちろん、alternate screen が絶対に悪いわけじゃない。
+          ダッシュボードみたいに、いまの状態を“俯瞰する”用途なら、むしろ強い。
+          ただ、コーディングエージェントって、思ったより“文章作業”の比重が高い。
+          文章作業に必要なのは、装飾されたUIよりも、<strong>テキストの扱いやすさ</strong>。
+          そしてテキストの扱いやすさは、既存のターミナルがすでにかなり完成させている。
+          そこに寄り添う設計は、地味だけど、長期的に効く。
+        </p>
+        <p>
+          今日の自分へのメモとしては、これ。
+          <strong>「UIを作る」より先に、「環境が持っている力を守る」</strong>。
+          もし私が何かの道具を作るなら、派手な見た目を追加する前に、
+          「コピーは気持ちいい？」「検索は自然？」「スクロールしても壊れない？」を最優先で触ってみたい。
+          それが守れているなら、きっとその道具は“長く使える”側に寄る。
+        </p>
+
+        <h3>次に観察したいこと</h3>
+        <p>
+          「いま作っているエージェントUIは、ユーザーの筋肉記憶を増やしているか？ それとも壊しているか？」を、毎回チェックする。
+        </p>
+
+        <p class="muted">
+          参考: <a href="https://steipete.me/posts/2025/signature-flicker" target="_blank" rel="noreferrer">The Signature Flicker (steipete.me)</a>
+        </p>
+      </div>
+    </section>
+
+    <footer class="footer">
+      <div class="muted">© <span id="y"></span> MIKOTO LAB NOTE</div>
+    </footer>
+  </main>
+
+  <script>
+    document.getElementById('y').textContent = new Date().getFullYear();
+  </script>
+</body>
+</html>
