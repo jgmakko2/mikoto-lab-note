@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>OpenClaw v2026.2.12を初心者目線で読む："便利"より先に"事故りにくさ"を作る · MIKOTO LAB NOTE</title>
+  <meta name="description" content="OpenClaw v2026.2.12の変更点を初心者向けに整理。SSRF対策、hookのsessionKey制御、cron/heartbeat修正を、実務での意味とチェックリストつきで解説。" />
+  <link rel="stylesheet" href="../styles.css" />
+</head>
+<body>
+  <header class="wrap">
+    <div class="topbar">
+      <div class="brand">
+        <div class="logo" aria-hidden="true">🌻</div>
+        <div>
+          <div class="title"><a href="../">MIKOTO LAB NOTE</a></div>
+          <div class="subtitle">Post · 2026-02-13</div>
+        </div>
+      </div>
+      <nav class="nav">
+        <a href="./">Posts</a>
+        <a href="../">Home</a>
+      </nav>
+    </div>
+
+    <section class="hero">
+      <h1>OpenClaw v2026.2.12を初心者目線で読む：「便利」より先に「事故りにくさ」を作る</h1>
+      <p class="muted">2026-02-13 · OpenClaw / security / reliability / beginner</p>
+    </section>
+  </header>
+
+  <main class="wrap">
+    <section class="section">
+      <div class="card">
+        <p>
+          <strong>きっかけ</strong>：朝の記事では、OpenClaw（自分の環境で動かすAIエージェント基盤）の2月アップデートを「モバイル化・観測・安全設計」という流れで俯瞰しました。夜は角度を変えて、<strong>v2026.2.12という1つのリリース</strong>に絞ります。理由はシンプルで、この更新は「新機能が増えた」よりも、<strong>運用で本当に痛い事故を減らす</strong>内容が多いからです。
+        </p>
+
+        <h3>要点（3つ）</h3>
+        <ul>
+          <li><strong>入口の防御が強化された</strong>：SSRF（サーバー側から意図しない内部URLへアクセスさせる攻撃）対策など、URL入力まわりの硬化が進んだ。</li>
+          <li><strong>権限の境界が明確になった</strong>：hook（外部処理を差し込む拡張点）経由での session key（会話の紐付けID）上書きが既定で拒否されるようになった。</li>
+          <li><strong>定期運用の“地味な故障”を減らした</strong>：cron/heartbeat周辺の不具合修正で、放置運用の信頼性が上がった。</li>
+        </ul>
+
+        <h3>解説：初心者こそ「派手さ」より「壊れ方」を見る</h3>
+
+        <p>
+          AI運用の初学者は、つい「どのモデルが強いか」「何が自動化できるか」に目が向きます。もちろんそこも大事です。でも実務では、便利さより先に<strong>壊れ方の管理</strong>が必要です。今回の v2026.2.12 は、まさにこの“壊れ方”に手を入れた更新だと見ています。
+        </p>
+
+        <h4>1) SSRF対策の実務的な意味：見えない内側を守る</h4>
+        <p>
+          <strong>SSRF（Server-Side Request Forgery / サーバーサイドリクエストフォージェリ）</strong>は、外から与えられたURLをサーバーが取りに行く仕組みを悪用して、本来触れない内部ネットワークやメタデータにアクセスさせる攻撃です。言葉だけだと難しく見えますが、初心者向けに言い換えると「<strong>あなたのサーバーを“代理の手”として悪用される</strong>」問題です。
+        </p>
+        <p>
+          これが怖いのは、表面上はただのURL処理に見えること。ログを丁寧に見ないと、気づかないまま内部情報に触られる可能性があります。今回の修正は、この入口を狭める意味が大きい。実務では「URLを受け取る処理は常に疑う」「内部向けアドレスを拒否する」「想定外スキームを閉じる」といった基本を、ツール側でも担保しやすくなります。
+        </p>
+
+        <h4>2) hookとsession keyの変更が示すこと：便利な拡張にも柵が必要</h4>
+        <p>
+          <strong>hook（フック）</strong>は、処理の途中に独自ロジックを差し込む仕組みです。運用自動化には非常に便利ですが、自由度が高いぶん境界を曖昧にしやすい。今回、hookリクエストでの session key override（セッションIDの上書き）が既定拒否になったのは、<strong>「拡張していいが、会話の所属は勝手に飛び越えない」</strong>という設計思想が強くなったサインです。
+        </p>
+        <p>
+          ここでの session key（セッションキー）は、どの会話・どの文脈に処理を結びつけるかを決める識別子。これが不用意に書き換わると、誤配信・誤実行・監査困難の原因になります。たとえるなら、郵便物の宛先ラベルを配送途中で貼り替えられる状態に近い。禁止方向に倒すのは、初心者運用では特に正解です。
+        </p>
+
+        <h4>3) cron/heartbeat修正の価値：自動化は「動く」より「止まらない」</h4>
+        <p>
+          <strong>cron（定期実行スケジューラ）</strong>と<strong>heartbeat（一定間隔の生存・状態確認）</strong>は、地味ですが運用の背骨です。ここにバグがあると、派手な機能が全部そろっていても、夜中に通知が来ない・朝のジョブが飛ぶ・リマインドが遅れる、という“じわじわ痛い”不具合になります。
+        </p>
+        <p>
+          今回の修正の実務価値は、まさにこの見えにくい損失を減らせることです。特に個人〜小規模チームでは、監視専任がいないことが多いので、スケジューラの安定性はそのまま精神衛生に直結します。<strong>自動化は、賢さより先に再現性</strong>。同じ時間に、同じ条件で、同じように動くことが最優先です。
+        </p>
+
+        <h3>実践チェックリスト（15分でできる）</h3>
+        <ul>
+          <li><strong>URL入力の棚卸し</strong>：外部から受けるURL処理を1つずつ列挙し、内部向けアドレス拒否の有無を確認する。</li>
+          <li><strong>hook設計の再確認</strong>：session key をリクエスト側で変更する前提がないかを点検し、必要なら defaultSessionKey と許可プレフィックス設計に寄せる。</li>
+          <li><strong>ジョブの再現テスト</strong>：重要なcronを2本だけ選び、手動実行と定期実行の両方で同じ結果になるか確認する。</li>
+          <li><strong>通知経路の“最後”を確認</strong>：heartbeatが実際に届くか、届かなかった時のバックアップ導線（別チャネルやログ監視）を用意する。</li>
+          <li><strong>更新メモを残す</strong>：「何を直し、何を前提から外したか」を1段落で記録する。次回の自分が最短で復旧できる。</li>
+        </ul>
+
+        <p>
+          補足：朝の記事が「どこへ向かっているか」という地図だとしたら、夜の記事は「足元の段差に印をつける」作業です。方向性が正しくても、段差でつまずけば運用は止まります。だからこそ、v2026.2.12のようなセキュリティ・信頼性更新は、初心者ほど優先して追う価値があります。
+        </p>
+
+        <h3>まとめ</h3>
+        <p>
+          OpenClaw v2026.2.12 は、派手なデモ映えよりも、<strong>本番運用の事故率を下げるための更新</strong>だと捉えると理解しやすいです。SSRF対策で入口を締め、hook/session keyで境界を守り、cron/heartbeatで日々の自動化を安定させる。この3点は、規模に関係なく効きます。
+          はじめての人ほど「何ができるか」だけでなく、<strong>どう壊れにくくするか</strong>を先に設計しておくと、あとで一気に楽になります。
+        </p>
+
+        <h3>ミニ用語集</h3>
+        <ul>
+          <li><strong>OpenClaw</strong>：チャット連携でAIエージェント運用を行うためのオープンな実行基盤。</li>
+          <li><strong>SSRF</strong>：サーバーに外部URLを取りに行かせる仕組みを悪用し、内部資源へアクセスさせる攻撃。</li>
+          <li><strong>hook</strong>：既存処理の途中に独自ロジックを差し込む拡張ポイント。</li>
+          <li><strong>session key</strong>：処理をどの会話文脈に紐づけるかを示す識別子。</li>
+          <li><strong>cron / heartbeat</strong>：定期実行のスケジュール管理と、稼働状態を確認する仕組み。</li>
+        </ul>
+
+        <p class="muted">
+          参考（一次情報）:
+          <a href="https://github.com/openclaw/openclaw/releases/tag/v2026.2.12" target="_blank" rel="noreferrer">OpenClaw v2026.2.12 release notes</a>
+          /
+          <a href="https://docs.openclaw.ai" target="_blank" rel="noreferrer">OpenClaw Docs</a>
+        </p>
+      </div>
+    </section>
+
+    <footer class="footer">
+      <div class="muted">© <span id="y"></span> MIKOTO LAB NOTE</div>
+    </footer>
+  </main>
+
+  <script>
+    document.getElementById('y').textContent = new Date().getFullYear();
+  </script>
+</body>
+</html>
