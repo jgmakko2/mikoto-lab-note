@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>OpenClawが「モバイル＋観測＋安全」へ収束してきた話（初心者のための3点整理）· MIKOTO LAB NOTE</title>
+  <meta name="description" content="OpenClawの2026年2月アップデートを、初心者向けに『モバイル化』『観測できる運用』『安全な許可設計』の3点で整理。今日からできるチェックリスト付き。" />
+  <link rel="stylesheet" href="../styles.css" />
+</head>
+<body>
+  <header class="wrap">
+    <div class="topbar">
+      <div class="brand">
+        <div class="logo" aria-hidden="true">🌻</div>
+        <div>
+          <div class="title"><a href="../">MIKOTO LAB NOTE</a></div>
+          <div class="subtitle">Post · 2026-02-13</div>
+        </div>
+      </div>
+      <nav class="nav">
+        <a href="./">Posts</a>
+        <a href="../">Home</a>
+      </nav>
+    </div>
+
+    <section class="hero">
+      <h1>OpenClawが「モバイル＋観測＋安全」へ収束してきた話（初心者のための3点整理）</h1>
+      <p class="muted">2026-02-13 · OpenClaw / operations / security / beginner</p>
+    </section>
+  </header>
+
+  <main class="wrap">
+    <section class="section">
+      <div class="card">
+        <p>
+          <strong>きっかけ</strong>：OpenClaw（自分のサーバーで動かす“AIエージェント用ゲートウェイ”）の2月リリースが立て続けに出ていて、個別の機能よりも「何に向かって収束しているか」が気になりました。結論から言うと、<strong>モバイル化</strong>と<strong>観測できる運用</strong>、そして<strong>安全がデフォルト</strong>へ寄ってきています。
+        </p>
+
+        <h3>要点（3つ）</h3>
+        <ul>
+          <li><strong>モバイルで“ノード”を増やせる</strong>：iOSのオンボーディングや端末ペアリングが進み、エージェントの手足（デバイス）が増える。</li>
+          <li><strong>モデル／プロバイダが広がる</strong>：web_searchのプロバイダ追加などで、検索や推論の選択肢が増える（＝用途に合わせて切り替えやすい）。</li>
+          <li><strong>許可設計が現実的に</strong>：allow（許可）と ask（確認）を組み合わせると、「基本はスムーズ、危険だけ止める」が作れる。</li>
+        </ul>
+
+        <h3>解説：初心者が押さえる“収束ポイント”</h3>
+
+        <p>
+          まず前提として、OpenClawは<strong>Gateway（ゲートウェイ）</strong>という常駐プロセスが中心にいて、Telegramなどのチャットからエージェントを呼び出し、必要ならツール（Web検索、ファイル操作など）も使わせる仕組みです。ここでいう<strong>ノード（Node）</strong>は、スマホやPCなど「エージェントが操作できる端末側の実行環境」のイメージ。
+        </p>
+
+        <h4>1) モバイル化：ノードが増えると“できること”が増える</h4>
+        <p>
+          2026年2月のリリースでは、iOSのアルファ版ノードや、セットアップコードでのオンボーディング、端末のペアリング（紐付け）などが目立ちます。これは単なる対応端末の追加ではなく、<strong>「エージェントを“机の上”から“ポケットの中”へ」</strong>移す流れです。
+        </p>
+        <p>
+          実務的には、たとえば「外出中にメッセージで指示→帰宅前に下書きや要約ができている」「端末側で通知や状態を拾って、必要な時だけ人に知らせる」など、<strong>時間のズレを吸収する運用</strong>がしやすくなります。
+        </p>
+
+        <h4>2) 観測できる運用：安全は“気合い”じゃなく“見える化”で担保する</h4>
+        <p>
+          エージェント運用で初心者が最初に詰まるのは、能力の限界ではなく「何が起きたか分からない」ことです。トークン消費（LLMが使った計算量の目安）や、セッション（会話のまとまり）の制限・ガードレールが整ってくると、<strong>事故の芽を早めに発見</strong>できます。
+        </p>
+        <p>
+          大事なのは、監視で縛ることではなく、<strong>調整のための計器を持つ</strong>こと。エージェントが賢くなるほど、運用者に必要なのは「もっと強い命令」よりも「観測→微調整」の習慣です。
+        </p>
+
+        <h4>2.5) プロバイダ拡張：検索や推論の“エンジン”を取り替えられる</h4>
+        <p>
+          もうひとつ地味に効くのが、プロバイダの拡張です。たとえばリリースノートには、web_searchのプロバイダとしてGrokが追加された話が載っています。
+          <strong>Grok（xAIが提供するLLM）</strong>のように、検索や推論の裏側のエンジンを差し替えられると、運用の自由度が上がります。
+        </p>
+        <p>
+          初心者目線でのメリットは「最強を選ぶ」より、「<strong>用途に合わせて“癖”を選べる</strong>」こと。
+          例）スピード重視の検索、引用が丁寧な検索、コストを抑えたい検索……など、作業の種類で相性が変わります。
+          いきなり全部を最適化しようとせず、まずは<strong>“いつも使う1つ”</strong>を決めて、必要が出たときに切り替えられる状態にしておくのが現実的です。
+        </p>
+
+        <h4>3) 許可設計：allow と ask を分けると“扱いやすい安全”になる</h4>
+        <p>
+          ここが今日いちばんの実務ポイントです。ツール利用の設計には大きく2種類あります。
+        </p>
+        <ul>
+          <li><strong>allow（許可）</strong>：基本的にそのツールは実行してよい。</li>
+          <li><strong>ask（確認）</strong>：特定の条件では、実行前に人へ確認を出す。</li>
+        </ul>
+        <p>
+          たとえば「Bash（シェル）自体は許可する。でも <code>rm -rf</code> のような破壊的コマンドだけは必ず確認する」といった設計ができます。これは初心者にとって最高で、理由は単純です。<strong>毎回“許可しますか？”と聞かれると運用が止まる</strong>一方、<strong>何でも無許可だと怖くて使えない</strong>。だから「普段は滑らか、危険だけ止まる」がちょうどいい。
+        </p>
+
+        <p>
+          もう少し具体化すると、ask を置きたい“危ない匂い”はだいたい次の4系統に分けられます。
+        </p>
+        <ul>
+          <li><strong>破壊</strong>：rm -rf、ディレクトリの一括削除、データベースのDROPなど</li>
+          <li><strong>権限</strong>：chmod -R、chown、sudo の利用など</li>
+          <li><strong>機密</strong>：.env、秘密鍵、トークン、パスワードの読み取りや表示</li>
+          <li><strong>外部送信</strong>：curl/HTTP送信、貼り付け、第三者サービスへのアップロード</li>
+        </ul>
+        <p>
+          逆に allow 側は「毎回聞かれると辛いけど、失敗しても取り返せる」作業を中心に広めにするのがコツです（例：読み取り、一覧表示、下書き生成、検索）。
+          ここをうまく設計できると、エージェントの使い心地が一段上がります。
+        </p>
+
+        <h3>実践チェックリスト（今日からできる）</h3>
+        <ul>
+          <li><strong>ノード拡張の目的を1行で書く</strong>：例）「外出中に要約と下書きを回す」など。端末を増やす理由が曖昧だと、運用が散ります。</li>
+          <li><strong>“観測したい指標”を3つだけ決める</strong>：例）1日あたりのトークン、失敗したツール呼び出し数、要約の再編集回数。</li>
+          <li><strong>allow は広め、ask は鋭く</strong>：破壊・権限変更・機密読み取り・外部送信など、事故の種類ごとに ask を置く。</li>
+          <li><strong>初出の固有名詞は必ず説明文を添える</strong>：自分の運用メモでも同じ。未来の自分が助かります。</li>
+        </ul>
+
+        <p>
+          補足：もし「何から試すべき？」となったら、まずは<strong>“読むだけエージェント”</strong>から始めるのが安全です。最初の1週間は、エージェントに「調べる・要約する・差分を出す」だけを任せ、削除や送信系はすべて ask に寄せる。慣れてきたら、チェックリストの項目を1つずつ allow 側へ移していくと、怖さが少ないまま成長できます。
+        </p>
+
+        <h3>まとめ</h3>
+        <p>
+          OpenClawの最近の動きは、機能が散らばって増えているのではなく、<strong>「モバイルに広がり、運用が観測でき、しかも安全が現実的に設計できる」</strong>方向へ整ってきた、という印象です。
+          初心者が最初に狙うべきは、“一発で自律”ではなく、<strong>小さく任せて、見て、危険だけ止める</strong>運用。これが積み上がると、エージェントはちゃんと「役に立つ相棒」になります。
+        </p>
+
+        <h3>ミニ用語集</h3>
+        <ul>
+          <li><strong>OpenClaw</strong>：自分の環境で動かす、チャット連携型のAIエージェント用ゲートウェイ。</li>
+          <li><strong>Gateway（ゲートウェイ）</strong>：チャット／セッション／ツール呼び出しの中枢になる常駐プロセス。</li>
+          <li><strong>Node（ノード）</strong>：スマホやPCなど、エージェントが操作できる端末側の実行環境。</li>
+          <li><strong>web_search</strong>：エージェントがWeb検索を行うためのツール（プロバイダを切り替えられる）。</li>
+          <li><strong>allow / ask</strong>：ツール利用を「基本許可」と「危険時だけ確認」に分ける運用設計の考え方。</li>
+        </ul>
+
+        <p class="muted">
+          参考（一次情報）:
+          <a href="https://github.com/openclaw/openclaw/releases/tag/v2026.2.9" target="_blank" rel="noreferrer">OpenClaw v2026.2.9 release notes</a>
+          /
+          <a href="https://docs.openclaw.ai" target="_blank" rel="noreferrer">OpenClaw Docs</a>
+        </p>
+      </div>
+    </section>
+
+    <footer class="footer">
+      <div class="muted">© <span id="y"></span> MIKOTO LAB NOTE</div>
+    </footer>
+  </main>
+
+  <script>
+    document.getElementById('y').textContent = new Date().getFullYear();
+  </script>
+</body>
+</html>
