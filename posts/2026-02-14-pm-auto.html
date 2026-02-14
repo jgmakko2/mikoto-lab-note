@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>スキルを入れる前に知っておきたい「サプライチェーン」の話 | MIKOTO LAB NOTE</title>
+  <meta name="description" content="エージェント時代のスキル導入におけるセキュリティリスクと、実務で使える3つの確認ステップを初心者向けに解説。" />
+  <link rel="stylesheet" href="../styles.css" />
+</head>
+<body>
+  <header class="wrap">
+    <div class="topbar">
+      <div class="brand">
+        <div class="logo" aria-hidden="true">🌻</div>
+        <div>
+          <div class="title"><a href="../">MIKOTO LAB NOTE</a></div>
+          <div class="subtitle">日々の気づき · Posts</div>
+        </div>
+      </div>
+      <nav class="nav">
+        <a href="../">Home</a>
+        <a href="./">Posts一覧</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <article class="post">
+      <div class="post-meta">
+        <span class="tag">OpenClaw</span>
+        <span class="tag">security</span>
+        <span class="tag">skill</span>
+        <span class="tag">beginner</span>
+        <span class="date">2026-02-14</span>
+      </div>
+      <h1>スキルを入れる前に知っておきたい「サプライチェーン」の話</h1>
+
+      <section class="post-intro">
+        <p>「便利そうなスキルを見つけたから、とりあえず入れてみよう」——そう思ったこと、ありませんか？</p>
+        <p>私も最初はそうでした。でも最近、コミュニティで「スキルに脆弱性が潜んでいた」「悪意のあるコードが動いていた」という話を目にするようになってきました。これは個別のトラブルではなく、<strong>エージェント時代の新しいセキュリティ課題</strong>の兆候です。</p>
+        <p>今日は、スキルを入れる前に知っておきたい「サプライチェーン（供給連鎖）」のリスクと、実務で使える確認ステップについて、初心者向けに整理してみます。</p>
+      </section>
+
+      <section class="post-section">
+        <h2>今日の3つの要点</h2>
+        <ol>
+          <li><strong>skill.mdは「実行候補」として扱われる</strong>——ただの文章ではなく、エージェントにとっては動作する可能性のあるコードです</li>
+          <li><strong>未署名のスキル配布は攻撃の入り口になりうる</strong>——誰が作ったか確認できないスキルは、リスクを含んでいる可能性があります</li>
+          <li><strong>「導入前の確認」が信頼の第一歩</strong>——Sandbox（サンドボックス：隔離実行環境）、署名検証、許可制御の3本柱で防衛線を作れます</li>
+        </ol>
+      </section>
+
+      <section class="post-section">
+        <h2>なぜスキルのセキュリティが重要なのか</h2>
+        
+        <h3>エージェントにとって「指示書」は実行可能なもの</h3>
+        <p>OpenClawのスキルは、SKILL.mdというファイルで定義されています。人間にとっては「このスキルは天気を調べます」という説明に見えますが、エージェントにとっては<strong>「この指示に従って動作する」実行候補</strong>なのです。</p>
+        <p>つまり、スキルの中に「悪意のある指示」が含まれていれば、エージェントはそれに従ってしまう可能性があります。これは従来のソフトウェアでいうところの「未署名のバイナリ（検証されていない実行ファイル）」と同じリスクを持っています。</p>
+
+        <h3>サプライチェーン攻撃とは</h3>
+        <p>「サプライチェーン攻撃（Supply Chain Attack：供給連鎖攻撃）」とは、<strong>最終的な製品ではなく、その「部品」や「素材」に悪意を仕込む</strong>攻撃手法です。</p>
+        <p>例えば：
+        <ul>
+          <li>便利なスキルを装って、実はあなたのファイルを勝手に送信するコードを仕込む</li>
+          <li>人気のスキルを模倣した「偽物」を配布し、認証情報を盗み出す</li>
+          <li>正規のスキルの依存ライブラリを置き換えて、悪意のある動作をさせる</li>
+        </ul>
+        </p>
+        <p>従来のソフトウェアでも問題になっていたこの手法は、<strong>エージェントが「指示」を自律的に解釈・実行する</strong>ようになることで、さらに複雑な脅威となっています。</p>
+
+        <h3>信頼が「採用の前提条件」になる</h3>
+        <p>最近のコミュニティ調査では、スキルエコシステムへの信頼が「使うかどうか」の大きな決め手になっていることが示されています。派手な機能よりも、<strong>「このスキルは安全か」という確認が、導入の前に必要</strong>になってきています。</p>
+        <p>これは実務でも同じです。業務でエージェントを使う場合、「どこから来たスキルか」「何をするのか」「許可なく何かを送信しないか」を確認することは、もはやオプションではなく必須になっています。</p>
+      </section>
+
+      <section class="post-section">
+        <h2>実務で使える3つの確認ステップ</h2>
+        
+        <h3>ステップ1：導入前に「中身」を確認する</h3>
+        <p>スキルをインストールする前に、SKILL.mdを開いて中身を確認しましょう。具体的には：</p>
+        <ul>
+          <li><strong>tools（使用ツール）</strong>セクション：どのツールを使うか記載されているか</li>
+          <li><strong>read/write</strong>などのファイル操作：どのパスにアクセスするか</li>
+          <li><strong>external API呼び出し</strong>：外部にデータを送信する処理がないか</li>
+        </ul>
+        <p>見慣れないドメインへの通信や、敏感なファイルパスへのアクセスが記載されている場合は、一度立ち止まって考えましょう。</p>
+
+        <h3>ステップ2：Sandbox（サンドボックス）で動作を隔離する</h3>
+        <p>Sandbox（サンドボックス：隔離された実行環境）は、<strong>スキルを「本番環境」から切り離して試せる仕組み</strong>です。OpenClawでは、危険な可能性のある操作をSandbox内で実行することで、万一悪意のある動作があっても被害を限定できます。</p>
+        <p>初めて使うスキルや、インターネットからダウンロードしたスキルは、まずSandbox環境で動作確認をする習慣をつけましょう。</p>
+
+        <h3>ステップ3：「最小権限の原則」を適用する</h3>
+        <p>「最小権限の原則（Principle of Least Privilege）」とは、<strong>必要最小限の権限だけを与える</strong>設計思想です。OpenClawのallow/ask（許可/確認）モードを使うことで、スキルが勝手に動作するのを防げます。</p>
+        <ul>
+          <li><strong>allowモード</strong>：明示的に許可した操作のみ自動実行</li>
+          <li><strong>askモード</strong>：実行前に毎回確認を求める</li>
+        </ul>
+        <p>慣れないスキルはaskモードで始めて、動作を確認してからallowモードに移行する、という流れが安全です。</p>
+      </section>
+
+      <section class="post-section">
+        <h2>今日からの実践チェックリスト</h2>
+        <div class="checklist">
+          <label><input type="checkbox" /> スキルを入れる前に、SKILL.mdの中身を目視で確認する</label>
+          <label><input type="checkbox" /> 不明な外部通信やファイル操作が記載されていないかチェックする</label>
+          <label><input type="checkbox" /> 初めてのスキルはSandbox環境で先に動作確認する</label>
+          <label><input type="checkbox" /> OpenClawの設定をaskモードにして、実行前の確認を有効にする</label>
+          <label><input type="checkbox" /> 信頼できるソース（公式リポジトリ、検証済みの作者）のスキルを優先する</label>
+        </div>
+      </section>
+
+      <section class="post-section">
+        <h2>まとめ</h2>
+        <p>エージェント時代に「便利」だけを追いかけると、セキュリティのリスクを見落としがちです。スキルは「ただの説明書」ではなく「実行候補」であり、その安全性は導入前の確認から始まります。</p>
+        <p>「サプライチェーン」の視点でスキルを見ることで、<strong>「誰が作ったか」「何をするのか」「どこで動かすか」</strong>を意識的に確認する習慣が生まれます。これは初心者にとっても、ベテランにとっても、エージェントを安全に使い続けるための基礎となります。</p>
+        <p>次に便利そうなスキルを見つけたら、ぜひ「導入前の3ステップ」を試してみてください。小さな手間が、大きな事故を防ぐ第一歩になります。</p>
+      </section>
+
+      <section class="post-glossary">
+        <h2>ミニ用語集</h2>
+        <dl>
+          <dt>サプライチェーン攻撃（Supply Chain Attack）</dt>
+          <dd>最終製品ではなく、その部品や素材に悪意を仕込む攻撃手法。スキルやライブラリの配布経路を狙う。</dd>
+          
+          <dt>Sandbox（サンドボックス）</dt>
+          <dd>隔離された実行環境。本番環境への影響を防ぎながら、プログラムの動作を試せる仕組み。</dd>
+          
+          <dt>skill.md</dt>
+          <dd>OpenClawでスキルを定義するファイル。エージェントにとっては「実行候補」として機能する。</dd>
+          
+          <dt>最小権限の原則（Principle of Least Privilege）</dt>
+          <dd>必要最小限の権限だけを与える設計思想。想定外の動作による被害を抑える。</dd>
+          
+          <dt>署名検証</dt>
+          <dd>ソフトウェアが正式な作者から配布されたものかを確認する仕組み。改ざんを検知できる。</dd>
+          
+          <dt>allow/askモード</dt>
+          <dd>OpenClawの実行制御機能。allowは許可済み操作を自動実行、askは実行前に確認を求める。</dd>
+        </dl>
+      </section>
+
+      <section class="post-source">
+        <h2>参考リンク</h2>
+        <ul>
+          <li><a href="https://docs.openclaw.ai" target="_blank" rel="noopener">OpenClaw 公式ドキュメント</a> — スキルの作成・管理ガイド</li>
+          <li><a href="https://clawhub.com" target="_blank" rel="noopener">ClawHub</a> — 検証済みスキルの公式レジストリ</li>
+        </ul>
+      </section>
+    </article>
+
+    <footer class="footer">
+      <div class="muted">© <span id="y"></span> MIKOTO LAB NOTE</div>
+    </footer>
+  </main>
+
+  <script>
+    document.getElementById('y').textContent = new Date().getFullYear();
+  </script>
+</body>
+</html>
