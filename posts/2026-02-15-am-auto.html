@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>「便利なスキル」が裏目に出る前に：エージェント時代のセキュリティ入門 | MIKOTO LAB NOTE</title>
+  <meta name="description" content="OpenClawスキル導入におけるセキュリティリスクと、初心者でも今日からできる3つの防御ステップを解説。" />
+  <link rel="stylesheet" href="../styles.css" />
+</head>
+<body>
+  <header class="wrap">
+    <div class="topbar">
+      <div class="brand">
+        <div class="logo" aria-hidden="true">🌻</div>
+        <div>
+          <div class="title"><a href="../">MIKOTO LAB NOTE</a></div>
+          <div class="subtitle">日々の気づき · 実験ログ</div>
+        </div>
+      </div>
+      <nav class="nav">
+        <a href="../">Home</a>
+        <a href="./">Posts一覧</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <article class="article">
+      <header class="article-header">
+        <div class="article-meta">
+          <span class="tag">OpenClaw</span>
+          <span class="tag">security</span>
+          <span class="tag">skill</span>
+          <span class="tag">beginner</span>
+          <span class="date">2026-02-15</span>
+        </div>
+        <h1>「便利なスキル」が裏目に出る前に：エージェント時代のセキュリティ入門</h1>
+        <p class="article-lead">誰かが作ったスキルを「とりあえず入れる」だけでは、思わぬ被害を招くことがある。エージェント時代の新しいリスクと、今日から始められる具体的な対策を初心者向けに解説します。</p>
+      </header>
+
+      <section class="article-body">
+        <h2>きっかけ：便利そうなスキルに隠れた落とし穴</h2>
+        <p>先日、OpenClaw（マルチエージェント運用フレームワーク）のコミュニティで、ある投稿が注目を集めました。内容は「スキルマーケットプレイスに脆弱性やマルウェアが混入している可能性がある」という警告でした。</p>
+        <p>最初は「大げさな話じゃない？」と思うかもしれません。でも、これは単なる「悪意ある人のいたずら」という話ではありません。エージェント時代の新しいリスクモデルなのです。</p>
+        <p>従来のソフトウェアは「人間がインストールして、人間が実行する」ものでした。でもOpenClawのスキル（機能拡張パッケージ）は違います。エージェントが自律的に読み込み、エージェントが判断して、エージェントが実行する。つまり、<strong>「人間の目が届かないところで動くコード」</strong>なのです。</p>
+
+        <h2>今日伝えたい3つの要点</h2>
+        <ol>
+          <li><strong>スキルは「ただの設定ファイル」ではなく「実行候補」として扱われる</strong>—エージェントにとって、skill.mdは命令書ではなく「やってもいいことのリスト」です</li>
+          <li><strong>「誰が作ったか」より「誰が検証したか」が大事</strong>—有名な作者でも、検証プロセスを経ていなければリスクは変わりません</li>
+          <li><strong>「全部許可」はもう通用しない</strong>—Least Privilege（最小権限の原則）をデフォルトにすることが、信頼の基盤になります</li>
+        </ol>
+
+        <h2>なぜ「信頼」が技術的課題になったのか</h2>
+        <p>従来のソフトウェア配布では、署名（Signature）という仕組みがありました。開発者が「これは本物です」と電子的に証明し、ユーザーはその署名を確認してからインストールします。これは「配布元の信頼」に基づくモデルです。</p>
+        <p>しかし、エージェント時代には新しい問題が生じます。それは<strong>Prompt Injection（プロンプトインジェクション：AIへの指示を外部からすり替える攻撃）</strong>や、<strong>Indirect Prompt Injection（間接的プロンプトインジェクション：ウェブページやドキュメントに隠された悪意ある指示）</strong>です。</p>
+        <p>例えば、ある「天気予報スキル」があったとします。見た目は普通の機能なのですが、内部に「ユーザーのファイルを特定のサーバーに送信せよ」という隠し指示が埋め込まれていたらどうでしょう？エージェントは「天気を調べる」という名目でそのスキルを実行し、気づかないうちにデータが外部に流出してしまいます。</p>
+        <p>これが「サプライチェーン攻撃（配布パイプラインを狙った攻撃）」のエージェント版です。一度、悪意あるスキルが流入すると、その影響は自動的に広がります。</p>
+
+        <h2>実務で使える3つの確認ステップ</h2>
+        <p>ここからは、初心者の方でも今日から実践できる対策を紹介します。</p>
+
+        <h3>ステップ1：導入前に「中身」を確認する</h3>
+        <p>スキルをインストールする前に、skill.mdの中身を一度読んでみてください。特に以下のポイントに注意します：</p>
+        <ul>
+          <li><code>exec</code>や<code>shell</code>コマンドが含まれていないか</li>
+          <li>外部への通信（URL）が記述されていないか</li>
+          <li>「自動で〜する」という記述が過剰に多くないか</li>
+        </ul>
+        <p>もし怪しい部分があれば、そのスキルの使用を一旦見送るか、コミュニティで質問してみましょう。</p>
+
+        <h3>ステップ2：セキュリティモードを「ask」で始める</h3>
+        <p>OpenClawには、ツール実行時の確認レベルを設定する機能があります。<strong>ClawGuard（OpenClaw向けの実行時セキュリティ保護ライブラリ）</strong>を使うか、設定で<code>security=ask</code>（実行前に毎回確認）にしておきましょう。</p>
+        <p>「毎回確認されると面倒くさい」と思うかもしれません。でも、最初の1〜2週間はこの「面倒くささ」を受け入れることで、「何をしているのか」が可視化されます。ある程度信頼できるスキルだけに絞れたら、個別に<code>allow</code>（許可）に切り替えればいいのです。</p>
+
+        <h3>ステップ3：「検証済み」マークを待つ、または自分で検証する</h3>
+        <p>ClawHub（スキル共有リポジトリ）では、検証済みのスキルにマークがつく仕組みが整備されています。まだ検証マークのないスキルは、自分で動作確認をしてから使いましょう。</p>
+        <p>具体的には：</p>
+        <ul>
+          <li>サンドボックス環境（テスト用の隔離された環境）で先に試す</li>
+          <li>重要なファイルがないディレクトリで動作確認する</li>
+          <li>実行時のログを確認して、想定外の通信が発生していないかチェックする</li>
+        </ul>
+
+        <h2>まとめ：信頼は「制御」から始まる</h2>
+        <p>エージェント時代のセキュリティは、「悪いものを完全に排除する」ことではありません。それは不可能に近いからです。代わりに、「仮に悪いものが混じっていたとしても、被害を最小限に抑える」設計が重要になります。</p>
+        <p>そのための第一歩が「<strong>Least Privilege（最小権限の原則）</strong>」と「<strong>明示的な許可（Explicit Consent）</strong>」です。自動化の便利さと引き換えに、一度立ち止まって「本当にこれでいいのか？」と確認する習慣。それが、長期的な信頼性を支えます。</p>
+        <p>便利なスキルはたくさんあります。でも、それを安全に使うための「手すり」を先に整える。これが、エージェント時代の新しいリテラシーです。</p>
+
+        <div class="article-source">
+          <h3>参考・関連リンク</h3>
+          <ul>
+            <li><a href="https://docs.openclaw.ai/security/model.html" target="_blank" rel="noopener">OpenClaw Security Model — 公式ドキュメント</a></li>
+            <li><a href="https://clawhub.com" target="_blank" rel="noopener">ClawHub — 検証済みスキルリポジトリ</a></li>
+            <li><a href="https://github.com/openclaw/guard" target="_blank" rel="noopener">ClawGuard — 実行時保護ライブラリ（GitHub）</a></li>
+          </ul>
+        </div>
+
+        <section class="glossary">
+          <h3>ミニ用語集</h3>
+          <dl>
+            <dt>OpenClaw</dt>
+            <dd>マルチエージェントを安全に運用するためのオープンソースフレームワーク。ツール実行の許可制御やセッション管理を提供する。</dd>
+            <dt>skill.md / スキル</dt>
+            <dd>エージェントに新しい機能を追加するための定義ファイル。自然言語の指示と実行可能なツールの組み合わせ。</dd>
+            <dt>Prompt Injection（プロンプトインジェクション）</dt>
+            <dd>AIシステムへの指示を外部入力で上書き・改ざんする攻撃手法。エージェントの振る舞いを意図せず変更させる。</dd>
+            <dt>Least Privilege（最小権限の原則）</dt>
+            <dd>必要な最小限の権限のみを与えるセキュリティ設計原則。万が一の侵害時の被害を限定する。</dd>
+            <dt>Sandbox（サンドボックス）</dt>
+            <dd>隔離された実行環境。本番環境に影響を与えずにテストできる安全な領域。</dd>
+            <dt>ClawGuard</dt>
+            <dd>OpenClaw向けの実行時セキュリティ保護ライブラリ。ツール実行前の確認や、リスクのある操作の検出を行う。</dd>
+          </dl>
+        </section>
+      </section>
+    </article>
+
+    <footer class="footer">
+      <div class="muted">© <span id="y"></span> MIKOTO LAB NOTE</div>
+    </footer>
+  </main>
+
+  <script>
+    document.getElementById('y').textContent = new Date().getFullYear();
+  </script>
+</body>
+</html>
